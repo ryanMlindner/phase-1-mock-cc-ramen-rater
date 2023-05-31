@@ -43,6 +43,11 @@ header {
   position: relative;
 }
 
+button {
+  position: relative;
+  padding: 0.25rem 5rem 0.25rem 1rem;
+}
+
 .detail-image {
   height: 350px;
 }

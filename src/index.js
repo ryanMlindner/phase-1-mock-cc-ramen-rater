@@ -9,6 +9,7 @@ const nameDisplay = document.getElementById("name");
 const restaurantDisplay = document.getElementById("restaurant");
 const ratingDisplay = document.getElementById("rating-display");
 const commentDisplay = document.getElementById("comment-display");
+let currentRamenId;
 
 fetch(apiURL)
   .then(res => res.json())
@@ -22,6 +23,8 @@ function populateList(ramens) {
 function addToList(ramen) {
   ramenList.push(ramen);
   loadMenu();
+  //extra deliverable 1
+  assignRamenData(1);
 }
 
 //populate ramen menu at the top of screen, attach click events to each
@@ -43,11 +46,19 @@ function assignRamenData(id) {
   restaurantDisplay.innerText =  targetRamen.restaurant;
   ratingDisplay.innerText = targetRamen.rating;
   commentDisplay.innerText = targetRamen.comment;
+  currentRamenId = id;
 }
 
+function emptyRamenData() {
+  imgDetailDisplay.src = './assets/image-placeholder.jpg';
+  nameDisplay.innerText = 'Insert Name Here';
+  restaurantDisplay.innerText =  'Insert Restaurant Here';
+  ratingDisplay.innerText = '';
+  commentDisplay.innerText = '';
+}
 
-const form = document.getElementById("new-ramen");
-form.addEventListener("submit", addNewRamen);
+const newRamenForm = document.getElementById("new-ramen");
+newRamenForm.addEventListener("submit", addNewRamen);
 
 //no persist ramen adding
 function addNewRamen(event) {
@@ -63,4 +74,36 @@ function addNewRamen(event) {
   }
   ramenList.push(newRamen);
   loadMenu();
+  assignRamenData(newRamen.id);
+}
+
+const updateRamenForm = document.getElementById("edit-ramen");
+updateRamenForm.addEventListener("submit", updateFeaturedRamen);
+
+//no persist ramen updating
+function updateFeaturedRamen(event) {
+  event.preventDefault();
+  const form = event.target;
+  const ramenTarget = ramenList.find(ramen => ramen.id === currentRamenId);
+  ramenTarget.rating = form.rating.value;
+  ramenTarget.comment = form.comment.value;
+  assignRamenData(ramenTarget.id);
+}
+
+const deleteButton = document.getElementById("delete");
+deleteButton.addEventListener("click", deleteFeaturedRamen)
+
+//no persist ramen deleting
+function deleteFeaturedRamen() {
+  const newList = ramenList.filter(ramen => ramen.id !== currentRamenId);
+  ramenList = newList;
+  if(ramenList.length !== 0) {
+  nextRamenId = ramenList[0].id;
+  loadMenu();
+  assignRamenData(nextRamenId);
+  }
+  else {
+    loadMenu();
+    emptyRamenData();
+  }
 }
