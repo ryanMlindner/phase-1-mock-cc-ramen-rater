@@ -1,7 +1,11 @@
 //wrote my code here
 const apiURL = 'http://localhost:3000/ramens';
-let ramenList = [];
+const headers = {
+  Accept: 'application/json',
+  'Content-type': 'application/json',
+}
 
+let ramenList = [];
 const ramenHolder = document.getElementById("ramen-menu");
 const ramenDescriptionContainer = document.getElementById("ramen-detail");
 const imgDetailDisplay = document.getElementById("detail-image");
@@ -60,7 +64,7 @@ function emptyRamenData() {
 const newRamenForm = document.getElementById("new-ramen");
 newRamenForm.addEventListener("submit", addNewRamen);
 
-//no persist ramen adding
+//persist ramen adding
 function addNewRamen(event) {
   event.preventDefault();
   const form = event.target;
@@ -72,22 +76,45 @@ function addNewRamen(event) {
     rating: form.rating.value,
     comment: form.comment.value,
   }
-  ramenList.push(newRamen);
-  loadMenu();
-  assignRamenData(newRamen.id);
+
+  fetch(apiURL, {
+    headers,
+    method: "POST",
+    body: JSON.stringify(newRamen),
+  })
+    .then(res => res.json())
+    .then(json => {
+      ramenList.push(json);
+      loadMenu();
+      assignRamenData(json.id);
+    })
 }
 
 const updateRamenForm = document.getElementById("edit-ramen");
 updateRamenForm.addEventListener("submit", updateFeaturedRamen);
 
-//no persist ramen updating
+//persist ramen updating
 function updateFeaturedRamen(event) {
   event.preventDefault();
   const form = event.target;
   const ramenTarget = ramenList.find(ramen => ramen.id === currentRamenId);
-  ramenTarget.rating = form.rating.value;
-  ramenTarget.comment = form.comment.value;
-  assignRamenData(ramenTarget.id);
+  const newRating = form.rating.value;
+  const newComment = form.comment.value;
+
+  fetch(`${apiURL}/${currentRamenId}`, {
+    headers,
+    method: "PATCH",
+    body: JSON.stringify({
+      rating: newRating,
+      comment: newComment
+    })
+  })
+    .then(res => res.json())
+    .then(json => {
+      ramenTarget.rating = json.rating;
+      ramenTarget.comment = json.comment;
+      assignRamenData(ramenTarget.id);
+    })
 }
 
 const deleteButton = document.getElementById("delete");
